@@ -1,16 +1,13 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { 
   Users, 
   Zap, 
   DoorOpen, 
   ShieldCheck, 
-  AlertTriangle, 
   Info,
-  Power,
   TrendingUp,
   X
 } from "lucide-react";
@@ -28,19 +25,91 @@ import {
   PolarRadiusAxis, 
   Radar,
   BarChart,
-  Bar,
-  Cell
+  Bar
 } from "recharts";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { RoomCard } from "@/components/dashboard/RoomCard";
+import { RoomDetails } from "@/components/dashboard/RoomDetails";
+import { Room, Student, AttendanceRecord } from "@shared/types";
 
-// Mock Data
-const attendanceData = [
-  { day: "Mon", r101: 38, r102: 40, r103: 35, r104: 39, r105: 37 },
-  { day: "Tue", r101: 40, r102: 38, r103: 32, r104: 40, r105: 35 },
-  { day: "Wed", r101: 35, r102: 39, r103: 38, r104: 37, r105: 40 },
-  { day: "Thu", r101: 39, r102: 35, r103: 40, r104: 38, r105: 36 },
-  { day: "Fri", r101: 37, r102: 37, r103: 39, r104: 35, r105: 38 },
+// Helper to generate mock attendance history
+const generateHistory = (base: number, volatility: number = 5): AttendanceRecord[] => {
+  return Array.from({ length: 30 }).map((_, i) => {
+    const date = new Date();
+    date.setDate(date.getDate() - (29 - i));
+    return {
+      date: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+      count: Math.max(0, Math.min(40, base + Math.floor(Math.random() * volatility * 2) - volatility)),
+      total: 40
+    };
+  });
+};
+
+// Helper to generate mock students
+const generateStudents = (count: number, prefix: string): Student[] => {
+  const names = ["Aarav", "Vihaan", "Aditya", "Sai", "Arjun", "Ishaan", "Reyansh", "Anaya", "Diya", "Sara", "Aria", "Kyra", "Zoya", "Myra"];
+  return Array.from({ length: count }).map((_, i) => ({
+    id: `${prefix}-${i}`,
+    name: `${names[i % names.length]} ${String.fromCharCode(65 + (i % 26))}.`,
+    rollNumber: `22IET${prefix}${String(i + 1).padStart(3, '0')}`,
+    status: Math.random() > 0.1 ? "Present" : "Late",
+    arrivalTime: `${Math.floor(Math.random() * 2) + 8}:${String(Math.floor(Math.random() * 60)).padStart(2, '0')} AM`
+  }));
+};
+
+const initialRooms: Room[] = [
+  { 
+    id: "101", 
+    name: "Room 101", 
+    status: "Active", 
+    studentsCount: 38, 
+    totalCapacity: 40,
+    resources: { projector: true, ac: true, light: true },
+    history: generateHistory(37),
+    currentStudents: generateStudents(38, "101")
+  },
+  { 
+    id: "102", 
+    name: "Room 102", 
+    status: "Active", 
+    studentsCount: 40, 
+    totalCapacity: 40,
+    resources: { projector: true, ac: true, light: true },
+    history: generateHistory(38),
+    currentStudents: generateStudents(40, "102")
+  },
+  { 
+    id: "103", 
+    name: "Room 103", 
+    status: "Anomaly", 
+    studentsCount: 0, 
+    totalCapacity: 40,
+    resources: { projector: true, ac: false, light: true },
+    alert: "Projector running outside hours",
+    history: generateHistory(35),
+    currentStudents: []
+  },
+  { 
+    id: "104", 
+    name: "Room 104", 
+    status: "Active", 
+    studentsCount: 39, 
+    totalCapacity: 40,
+    resources: { projector: true, ac: true, light: true },
+    history: generateHistory(36),
+    currentStudents: generateStudents(39, "104")
+  },
+  { 
+    id: "105", 
+    name: "Room 105", 
+    status: "Active", 
+    studentsCount: 37, 
+    totalCapacity: 40,
+    resources: { projector: false, ac: false, light: true },
+    history: generateHistory(35),
+    currentStudents: generateStudents(37, "105")
+  },
 ];
 
 const resourceData = [
@@ -60,17 +129,10 @@ const powerUsageData = [
   { time: '18:00', usage: 80, baseline: 80 },
 ];
 
-const classrooms = [
-  { id: "101", name: "Room 101", status: "Active", students: 38, resources: { projector: true, ac: true, light: true } },
-  { id: "102", name: "Room 102", status: "Active", students: 40, resources: { projector: true, ac: true, light: true } },
-  { id: "103", name: "Room 103", status: "Anomaly", students: 0, resources: { projector: true, ac: false, light: true }, alert: "Projector running outside hours" },
-  { id: "104", name: "Room 104", status: "Active", students: 39, resources: { projector: true, ac: true, light: true } },
-  { id: "105", name: "Room 105", status: "Active", students: 37, resources: { projector: false, ac: false, light: true } },
-];
-
 export default function Index() {
   const [energySaved, setEnergySaved] = useState(1240);
-  const [rooms, setRooms] = useState(classrooms);
+  const [rooms, setRooms] = useState<Room[]>(initialRooms);
+  const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
   const [showGuide, setShowGuide] = useState(false);
 
   const toggleResource = (roomId: string, resource: string) => {
@@ -78,7 +140,6 @@ export default function Index() {
       if (room.id === roomId) {
         const newState = !room.resources[resource as keyof typeof room.resources];
         if (!newState) {
-          // If turning off, increment energy saved
           setEnergySaved(s => s + 5);
         }
         return {
@@ -86,15 +147,22 @@ export default function Index() {
           resources: { ...room.resources, [resource]: newState },
           status: room.id === "103" && resource === "projector" && !newState ? "Active" : room.status,
           alert: room.id === "103" && resource === "projector" && !newState ? undefined : room.alert
-        };
+        } as Room;
       }
       return room;
     }));
   };
 
+  const attendanceHeatmapData = [
+    { day: "Mon", attendance: rooms.reduce((acc, r) => acc + r.history[r.history.length-5].count, 0) },
+    { day: "Tue", attendance: rooms.reduce((acc, r) => acc + r.history[r.history.length-4].count, 0) },
+    { day: "Wed", attendance: rooms.reduce((acc, r) => acc + r.history[r.history.length-3].count, 0) },
+    { day: "Thu", attendance: rooms.reduce((acc, r) => acc + r.history[r.history.length-2].count, 0) },
+    { day: "Fri", attendance: rooms.reduce((acc, r) => acc + r.history[r.history.length-1].count, 0) },
+  ];
+
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
-      {/* Header with Title and Guide Toggle */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Command Center</h1>
@@ -110,7 +178,6 @@ export default function Index() {
         </Button>
       </div>
 
-      {/* Pulse Row */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <PulseCard 
           title="Campus Presence" 
@@ -145,38 +212,31 @@ export default function Index() {
         />
       </div>
 
-      {/* Data Visualization Core */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {/* Attendance Heatmap Density */}
         <Card className="lg:col-span-2">
           <CardHeader>
             <CardTitle className="text-lg font-semibold flex items-center gap-2">
               <Users className="h-5 w-5 text-primary" />
               Attendance Density Heatmap
             </CardTitle>
-            <CardDescription>Classroom population distribution across the work week</CardDescription>
+            <CardDescription>Aggregate classroom population across the work week</CardDescription>
           </CardHeader>
           <CardContent className="h-[300px]">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={attendanceData}>
+              <BarChart data={attendanceHeatmapData}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} opacity={0.3} />
                 <XAxis dataKey="day" axisLine={false} tickLine={false} />
-                <YAxis axisLine={false} tickLine={false} />
+                <YAxis axisLine={false} tickLine={false} domain={[0, 200]} />
                 <Tooltip 
                   cursor={{fill: 'transparent'}}
                   contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
                 />
-                <Bar dataKey="r101" stackId="a" fill="hsl(var(--primary))" radius={[0, 0, 0, 0]} opacity={0.9} />
-                <Bar dataKey="r102" stackId="a" fill="hsl(var(--primary))" opacity={0.7} />
-                <Bar dataKey="r103" stackId="a" fill="hsl(var(--primary))" opacity={0.5} />
-                <Bar dataKey="r104" stackId="a" fill="hsl(var(--primary))" opacity={0.3} />
-                <Bar dataKey="r105" stackId="a" fill="hsl(var(--primary))" opacity={0.1} radius={[4, 4, 0, 0]} />
+                <Bar dataKey="attendance" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} opacity={0.9} />
               </BarChart>
             </ResponsiveContainer>
           </CardContent>
         </Card>
 
-        {/* Resource Utilization Radar */}
         <Card>
           <CardHeader>
             <CardTitle className="text-lg font-semibold flex items-center gap-2">
@@ -203,7 +263,6 @@ export default function Index() {
           </CardContent>
         </Card>
 
-        {/* Peak Power Graph */}
         <Card className="lg:col-span-3">
           <CardHeader>
             <CardTitle className="text-lg font-semibold flex items-center gap-2">
@@ -246,70 +305,35 @@ export default function Index() {
         </Card>
       </div>
 
-      {/* Resource Tracker Section */}
       <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-bold tracking-tight">Resource Tracker</h2>
-          <Badge variant="outline" className="gap-1 px-3 py-1">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h2 className="text-2xl font-bold tracking-tight">Resource Tracker</h2>
+            <p className="text-sm text-muted-foreground">Click a room card to view comprehensive attendance analytics</p>
+          </div>
+          <Badge variant="outline" className="gap-1 px-3 py-1 self-start">
             <span className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
             Live Hardware Feed
           </Badge>
         </div>
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {rooms.map((room) => (
-            <Card key={room.id} className={cn(
-              "overflow-hidden transition-all hover:shadow-md",
-              room.status === "Anomaly" ? "border-destructive/50 ring-1 ring-destructive/20" : ""
-            )}>
-              <CardHeader className="pb-2">
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-lg">{room.name}</CardTitle>
-                  <Badge variant={room.status === "Anomaly" ? "destructive" : "secondary"}>
-                    {room.status}
-                  </Badge>
-                </div>
-                <CardDescription>{room.students} Students present</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {room.alert && (
-                  <div className="flex items-center gap-2 p-2 rounded-md bg-destructive/10 text-destructive text-xs font-semibold">
-                    <AlertTriangle className="h-3 w-3" />
-                    {room.alert}
-                  </div>
-                )}
-                <div className="space-y-3">
-                  <ResourceToggle 
-                    label="Projector" 
-                    isActive={room.resources.projector} 
-                    onToggle={() => toggleResource(room.id, "projector")}
-                  />
-                  <ResourceToggle 
-                    label="Air Conditioning" 
-                    isActive={room.resources.ac} 
-                    onToggle={() => toggleResource(room.id, "ac")}
-                  />
-                  <ResourceToggle 
-                    label="Smart Lighting" 
-                    isActive={room.resources.light} 
-                    onToggle={() => toggleResource(room.id, "light")}
-                  />
-                </div>
-                {room.status === "Anomaly" && (
-                  <Button 
-                    variant="destructive" 
-                    className="w-full mt-2"
-                    onClick={() => toggleResource(room.id, "projector")}
-                  >
-                    Force Shutdown
-                  </Button>
-                )}
-              </CardContent>
-            </Card>
+            <RoomCard 
+              key={room.id} 
+              room={room} 
+              onToggleResource={toggleResource}
+              onClick={setSelectedRoom}
+            />
           ))}
         </div>
       </div>
 
-      {/* Demo Guide Overlay */}
+      <RoomDetails 
+        room={selectedRoom} 
+        open={!!selectedRoom} 
+        onOpenChange={(open) => !open && setSelectedRoom(null)} 
+      />
+
       <AnimatePresence>
         {showGuide && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm">
@@ -336,15 +360,15 @@ export default function Index() {
                 <div className="grid gap-6 md:grid-cols-2">
                   <GuideItem 
                     title="Wi-Fi Authentication" 
-                    description="The authorized Wi-Fi requirement ensures students are physically present. The system cross-references IP leases with student IDs."
+                    description="The authorized Wi-Fi requirement ensures students are physically present. The system cross-references IP leases with student IDs and Roll Numbers."
                   />
                   <GuideItem 
                     title="Hardware Integration" 
                     description="Cloud backend integrates the central timetable with hardware power states. Projectors and ACs are automatically gated by class schedules."
                   />
                   <GuideItem 
-                    title="Peak Power Shaving" 
-                    description="AI-driven optimization reduces energy spikes by staggering appliance start times across the 5 demonstration rooms."
+                    title="Comprehensive Analytics" 
+                    description="Admins can click any room to view detailed historical data, including daily, weekly, and monthly trends with student-level verification lists."
                   />
                   <GuideItem 
                     title="Modular Architecture" 
@@ -379,7 +403,6 @@ function PulseCard({ title, value, icon: Icon, description, trend, color }: any)
           {trend}
         </div>
       </CardContent>
-      {/* Decorative pulse effect */}
       <div className="absolute bottom-0 left-0 h-1 bg-primary/20 w-full overflow-hidden">
         <motion.div 
           className="h-full bg-primary"
@@ -388,15 +411,6 @@ function PulseCard({ title, value, icon: Icon, description, trend, color }: any)
         />
       </div>
     </Card>
-  );
-}
-
-function ResourceToggle({ label, isActive, onToggle }: { label: string, isActive: boolean, onToggle: () => void }) {
-  return (
-    <div className="flex items-center justify-between">
-      <span className="text-sm font-medium">{label}</span>
-      <Switch checked={isActive} onCheckedChange={onToggle} />
-    </div>
   );
 }
 

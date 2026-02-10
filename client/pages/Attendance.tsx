@@ -2,11 +2,13 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 import { CheckCircle2, Loader2, Wifi, Bluetooth, ShieldCheck } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function Attendance() {
   const [code, setCode] = useState("");
+  const [rollNumber, setRollNumber] = useState("");
   const [status, setStatus] = useState<"idle" | "verifying" | "success">("idle");
   const [step, setStep] = useState(0);
 
@@ -18,8 +20,8 @@ export default function Attendance() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (code.length !== 6) return;
-    
+    if (code.length !== 6 || !rollNumber.trim()) return;
+
     setStatus("verifying");
     setStep(0);
   };
@@ -51,29 +53,46 @@ export default function Attendance() {
             exit={{ opacity: 0, y: -20 }}
             className="w-full"
           >
-            <Card className="border-2">
+            <Card className="border-2 shadow-xl">
               <CardHeader className="text-center">
                 <CardTitle className="text-2xl font-bold">Attendance Portal</CardTitle>
                 <CardDescription>
-                  Enter the 6-digit session code provided by your instructor
+                  Enter your details to record your attendance
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <form onSubmit={handleSubmit} className="space-y-6">
-                  <div className="flex justify-center">
-                    <Input
-                      type="text"
-                      maxLength={6}
-                      value={code}
-                      onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))}
-                      placeholder="0 0 0 0 0 0"
-                      className="text-center text-3xl font-black tracking-[1em] h-16 w-full max-w-[280px]"
-                    />
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="rollNumber">Roll Number</Label>
+                      <Input
+                        id="rollNumber"
+                        type="text"
+                        value={rollNumber}
+                        onChange={(e) => setRollNumber(e.target.value.toUpperCase())}
+                        placeholder="e.g. 21CS101"
+                        className="text-lg font-semibold h-12"
+                        required
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="code" className="block text-center">Session Code</Label>
+                      <Input
+                        id="code"
+                        type="text"
+                        maxLength={6}
+                        value={code}
+                        onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))}
+                        placeholder="0 0 0 0 0 0"
+                        className="text-center text-3xl font-black tracking-[1em] h-16 w-full"
+                        required
+                      />
+                    </div>
                   </div>
-                  <Button 
-                    type="submit" 
+                  <Button
+                    type="submit"
                     className="w-full h-12 text-lg font-semibold"
-                    disabled={code.length !== 6}
+                    disabled={code.length !== 6 || !rollNumber.trim()}
                   >
                     Mark Attendance
                   </Button>
