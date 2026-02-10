@@ -17,6 +17,7 @@
     "build": "npm run build:admin && npm run build:student",
     "build:admin": "vite build",
     "build:student": "vite build --config vite.config.student-portal.ts",
+    "netlify-build": "node netlify-build.js",
     "build:server": "vite build --config vite.config.server.ts",
     "start": "node dist/server/node-build.mjs",
     "test": "vitest --run",
