@@ -1,16 +1,16 @@
 import * as React from "react";
 import { Link, useLocation } from "react-router-dom";
-import { ThemeToggle } from "@shared-ui/components/ThemeToggle";
-import { cn } from "@shared-ui/lib/utils";
-import { LayoutDashboard, UserCheck, BookOpen, Menu } from "lucide-react";
-import { Button } from "@shared-ui/components/ui/button";
+import { ThemeToggle } from "@/components/ThemeToggle";
+import { cn } from "@/lib/utils";
+import { LayoutDashboard, GraduationCap, BookOpen, Menu } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import {
   Sheet,
   SheetContent,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-} from "@shared-ui/components/ui/sheet";
+} from "@/components/ui/sheet";
 
 export function Header() {
   const location = useLocation();
@@ -22,8 +22,8 @@ export function Header() {
   }, []);
 
   const navItems = [
-    { name: "Command Center", path: "/admin", icon: LayoutDashboard },
-    { name: "Attendance Portal", path: "/attendance", icon: UserCheck },
+    { name: "Command Center", path: "/command-center", icon: LayoutDashboard },
+    { name: "Start a Class", path: "/start-class", icon: GraduationCap },
   ];
 
   return (

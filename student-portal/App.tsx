@@ -8,26 +8,21 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "./components/theme-provider";
 import { AppLayout } from "./components/layout/AppLayout";
-import Index from "./pages/Index";
-import CommandCenter from "./pages/CommandCenter";
-import StartClass from "./pages/StartClass";
+import Attendance from "./pages/Attendance";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <ThemeProvider defaultTheme="light" storageKey="iet-davv-theme">
+    <ThemeProvider defaultTheme="light" storageKey="iet-davv-student-theme">
       <TooltipProvider>
         <Toaster />
         <Sonner />
         <BrowserRouter>
           <AppLayout>
             <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/command-center" element={<CommandCenter />} />
-              <Route path="/start-class" element={<StartClass />} />
-              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+              <Route path="/" element={<Attendance />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </AppLayout>

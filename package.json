@@ -11,12 +11,12 @@
     ]
   },
   "scripts": {
-    "dev": "vite --config vite.config.admin.ts",
-    "dev:admin": "vite --config vite.config.admin.ts",
-    "dev:student": "vite --config vite.config.student.ts",
-    "build": "npm run build:admin && npm run build:student && npm run build:server",
-    "build:admin": "vite build --config vite.config.admin.ts",
-    "build:student": "vite build --config vite.config.student.ts",
+    "dev": "vite",
+    "dev:admin": "vite",
+    "dev:student": "vite --config vite.config.student-portal.ts",
+    "build": "npm run build:admin && npm run build:student",
+    "build:admin": "vite build",
+    "build:student": "vite build --config vite.config.student-portal.ts",
     "build:server": "vite build --config vite.config.server.ts",
     "start": "node dist/server/node-build.mjs",
     "test": "vitest --run",
