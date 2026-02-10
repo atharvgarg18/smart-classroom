@@ -9,24 +9,20 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "@shared-ui/components/theme-provider";
 import { AppLayout } from "./components/layout/AppLayout";
 import Attendance from "./pages/Attendance";
-import CommandCenter from "./pages/CommandCenter";
-import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <ThemeProvider defaultTheme="light" storageKey="iet-davv-theme">
+    <ThemeProvider defaultTheme="light" storageKey="iet-davv-student-theme">
       <TooltipProvider>
         <Toaster />
         <Sonner />
         <BrowserRouter>
           <AppLayout>
             <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/admin" element={<CommandCenter />} />
-              <Route path="/attendance" element={<Attendance />} />
+              <Route path="/" element={<Attendance />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>

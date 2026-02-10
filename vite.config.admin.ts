@@ -5,16 +5,20 @@ import { createServer } from "./server";
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
+  root: ".",
+  publicDir: "public",
   server: {
     host: "::",
     port: 8080,
     fs: {
-      allow: ["./client", "./shared", "./shared-ui"],
-      deny: [".env", ".env.*", "*.{crt,pem}", "**/.git/**", "server/**"],
+      allow: ["."],
     },
   },
   build: {
-    outDir: "dist/spa",
+    outDir: "dist/admin",
+    rollupOptions: {
+      input: path.resolve(__dirname, "index-admin.html"),
+    },
   },
   plugins: [react(), expressPlugin()],
   resolve: {

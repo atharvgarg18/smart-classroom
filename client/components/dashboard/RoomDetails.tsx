@@ -5,7 +5,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription
-} from "@/components/ui/dialog";
+} from "@shared-ui/components/ui/dialog";
 import {
   ResponsiveContainer,
   AreaChart,
@@ -35,11 +35,11 @@ import {
   Lightbulb,
   Search
 } from "lucide-react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { cn } from "@/lib/utils";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@shared-ui/components/ui/tabs";
+import { ScrollArea } from "@shared-ui/components/ui/scroll-area";
+import { Badge } from "@shared-ui/components/ui/badge";
+import { Input } from "@shared-ui/components/ui/input";
+import { cn } from "@shared-ui/lib/utils";
 
 interface RoomDetailsProps {
   room: Room | null;

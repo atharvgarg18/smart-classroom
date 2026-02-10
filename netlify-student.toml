@@ -1,8 +1,7 @@
 [build]
-  command = "pnpm build:admin"
+  command = "pnpm build:student"
   functions = "netlify/functions"
-  publish = "dist/admin"
-
+  publish = "dist/student"
 
 [functions]
   external_node_modules = ["express"]

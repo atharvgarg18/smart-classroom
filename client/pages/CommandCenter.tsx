@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@shared-ui/components/ui/card";
+import { Button } from "@shared-ui/components/ui/button";
+import { Badge } from "@shared-ui/components/ui/badge";
 import {
   Users,
   Zap,
@@ -35,8 +35,8 @@ import {
   Cell
 } from "recharts";
 import { motion, AnimatePresence } from "framer-motion";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { cn } from "@/lib/utils";
+import { ScrollArea } from "@shared-ui/components/ui/scroll-area";
+import { cn } from "@shared-ui/lib/utils";
 import { RoomCard } from "@/components/dashboard/RoomCard";
 import { RoomDetails } from "@/components/dashboard/RoomDetails";
 import { Room, Student, AttendanceRecord } from "@shared/types";

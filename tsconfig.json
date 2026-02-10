@@ -29,14 +29,19 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./client/*"],
-      "@shared/*": ["./shared/*"]
+      "@shared/*": ["./shared/*"],
+      "@shared-ui/*": ["./shared-ui/*"]
     }
   },
   "include": [
     "client/**/*",
-    "server/**/*",
+    "client-student/**/*",
     "shared/**/*",
+    "shared-ui/**/*",
+    "server/**/*",
     "vite.config.ts",
+    "vite.config.admin.ts",
+    "vite.config.student.ts",
     "vite.config.server.ts"
   ],
   "exclude": ["node_modules", "dist"]

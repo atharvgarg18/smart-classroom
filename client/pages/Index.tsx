@@ -1,8 +1,8 @@
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@shared-ui/components/ui/card";
 import { LayoutDashboard, UserCheck, ArrowRight, ShieldCheck, Users } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@shared-ui/components/ui/button";
 
 export default function LandingPage() {
   return (

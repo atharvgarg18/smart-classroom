@@ -1,9 +1,9 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Switch } from "@/components/ui/switch";
-import { Progress } from "@/components/ui/progress";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@shared-ui/components/ui/card";
+import { Badge } from "@shared-ui/components/ui/badge";
+import { Switch } from "@shared-ui/components/ui/switch";
+import { Progress } from "@shared-ui/components/ui/progress";
 import { AlertTriangle, Users, Monitor, Wind, Lightbulb } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn } from "@shared-ui/lib/utils";
 import { Room } from "@shared/types";
 
 interface RoomCardProps {

@@ -63,7 +63,7 @@ export default function Attendance() {
           >
             <Card className="border-2 shadow-xl">
               <CardHeader className="text-center">
-                <CardTitle className="text-2xl font-bold">Attendance Portal</CardTitle>
+                <CardTitle className="text-2xl font-bold">Student Attendance Portal</CardTitle>
                 <CardDescription>
                   Enter your details to record your attendance
                 </CardDescription>
@@ -99,25 +99,31 @@ export default function Attendance() {
                       </Select>
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="code" className="block text-center">Session Code</Label>
+                      <Label htmlFor="code">Session Code</Label>
                       <Input
                         id="code"
                         type="text"
-                        maxLength={6}
                         value={code}
-                        onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))}
-                        placeholder="0 0 0 0 0 0"
-                        className="text-center text-3xl font-black tracking-[1em] h-16 w-full"
+                        onChange={(e) => {
+                          const val = e.target.value.replace(/[^0-9]/g, "");
+                          if (val.length <= 6) setCode(val);
+                        }}
+                        placeholder="Enter 6-digit code"
+                        className="text-center text-2xl font-bold tracking-widest h-14"
+                        maxLength={6}
                         required
                       />
+                      <p className="text-xs text-muted-foreground text-center">
+                        Get the code from your instructor's screen
+                      </p>
                     </div>
                   </div>
                   <Button
                     type="submit"
-                    className="w-full h-12 text-lg font-semibold"
+                    className="w-full h-12 text-base font-semibold"
                     disabled={code.length !== 6 || !rollNumber.trim() || !roomNumber}
                   >
-                    Mark Attendance
+                    Submit Attendance
                   </Button>
                 </form>
               </CardContent>
@@ -125,54 +131,99 @@ export default function Attendance() {
           </motion.div>
         )}
 
-        {status === "verifying" && (() => {
-          const StepIcon = steps[step]?.icon;
-          return (
-            <motion.div
-              key="verifying"
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 1.1 }}
-              className="text-center space-y-8 py-12"
-            >
-              <div className="relative flex items-center justify-center">
-                <Loader2 className="h-24 w-24 text-primary animate-spin" />
-                <div className="absolute inset-0 flex items-center justify-center">
-                  {StepIcon && <StepIcon className="h-10 w-10 text-primary" />}
-                </div>
-              </div>
-              <div className="space-y-2">
-                <h2 className="text-xl font-bold text-foreground">
-                  {steps[step]?.label}
-                </h2>
-                <p className="text-muted-foreground text-sm">
-                  Please stay close to the classroom beacon
-                </p>
-              </div>
-            </motion.div>
-          );
-        })()}
+        {status === "verifying" && (
+          <motion.div
+            key="verifying"
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            className="w-full"
+          >
+            <Card className="border-2 shadow-xl">
+              <CardHeader className="text-center pb-8">
+                <CardTitle className="text-2xl font-bold">Verifying...</CardTitle>
+                <CardDescription>Please wait while we confirm your attendance</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6 pb-8">
+                {steps.map((s, i) => {
+                  const Icon = s.icon;
+                  const isActive = i === step;
+                  const isDone = i < step;
+
+                  return (
+                    <motion.div
+                      key={i}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: i * 0.3 }}
+                      className="flex items-center gap-4"
+                    >
+                      <div
+                        className={`h-12 w-12 rounded-full flex items-center justify-center border-2 transition-all ${
+                          isDone
+                            ? "bg-green-500 border-green-500 text-white"
+                            : isActive
+                            ? "border-primary bg-primary/10 text-primary"
+                            : "border-muted bg-muted/30 text-muted-foreground"
+                        }`}
+                      >
+                        {isDone ? (
+                          <CheckCircle2 className="h-6 w-6" />
+                        ) : isActive ? (
+                          <Loader2 className="h-6 w-6 animate-spin" />
+                        ) : (
+                          <Icon className="h-6 w-6" />
+                        )}
+                      </div>
+                      <span
+                        className={`font-medium ${
+                          isActive ? "text-foreground" : "text-muted-foreground"
+                        }`}
+                      >
+                        {s.label}
+                      </span>
+                    </motion.div>
+                  );
+                })}
+              </CardContent>
+            </Card>
+          </motion.div>
+        )}
 
         {status === "success" && (
           <motion.div
             key="success"
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="text-center space-y-6 py-12"
+            exit={{ opacity: 0, scale: 0.8 }}
+            className="w-full text-center space-y-6"
           >
-            <div className="flex justify-center">
-              <div className="bg-green-100 dark:bg-green-900/30 p-6 rounded-full">
-                <CheckCircle2 className="h-24 w-24 text-green-600 dark:text-green-400" />
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ type: "spring", stiffness: 200, delay: 0.1 }}
+            >
+              <div className="h-24 w-24 rounded-full bg-green-500 flex items-center justify-center mx-auto mb-6">
+                <CheckCircle2 className="h-12 w-12 text-white" />
               </div>
-            </div>
-            <div className="space-y-2">
-              <h2 className="text-2xl font-bold text-foreground">Attendance Verified!</h2>
+            </motion.div>
+            <div>
+              <h2 className="text-3xl font-bold mb-2">Attendance Recorded!</h2>
               <p className="text-muted-foreground">
-                Your presence has been successfully recorded for Room {roomNumber}.
+                Your presence has been successfully verified for Room {roomNumber}
               </p>
             </div>
-            <Button variant="outline" onClick={() => { setStatus("idle"); setCode(""); }}>
-              Done
+            <Button
+              onClick={() => {
+                setStatus("idle");
+                setCode("");
+                setRollNumber("");
+                setRoomNumber("");
+              }}
+              variant="outline"
+              className="mt-6"
+            >
+              Submit Another
             </Button>
           </motion.div>
         )}
