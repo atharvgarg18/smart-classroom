@@ -1,3 +1,4 @@
+import * as React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { cn } from "@/lib/utils";
@@ -10,11 +11,15 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { useState } from "react";
 
 export function Header() {
   const location = useLocation();
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = React.useState(false);
+  const [mounted, setMounted] = React.useState(false);
+
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const navItems = [
     { name: "Command Center", path: "/", icon: LayoutDashboard },
@@ -60,36 +65,38 @@ export function Header() {
 
           {/* Mobile Navigation */}
           <div className="md:hidden">
-            <Sheet open={open} onOpenChange={setOpen}>
-              <SheetTrigger asChild>
-                <Button variant="ghost" size="icon">
-                  <Menu className="h-5 w-5" />
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="right">
-                <SheetHeader>
-                  <SheetTitle>Navigation</SheetTitle>
-                </SheetHeader>
-                <div className="flex flex-col gap-4 mt-8">
-                  {navItems.map((item) => (
-                    <Link
-                      key={item.path}
-                      to={item.path}
-                      onClick={() => setOpen(false)}
-                      className={cn(
-                        "flex items-center gap-3 text-lg font-medium transition-colors p-2 rounded-lg hover:bg-muted",
-                        location.pathname === item.path
-                          ? "text-primary bg-primary/5"
-                          : "text-muted-foreground"
-                      )}
-                    >
-                      <item.icon className="h-5 w-5" />
-                      {item.name}
-                    </Link>
-                  ))}
-                </div>
-              </SheetContent>
-            </Sheet>
+            {mounted && (
+              <Sheet open={open} onOpenChange={setOpen}>
+                <SheetTrigger asChild>
+                  <Button variant="ghost" size="icon">
+                    <Menu className="h-5 w-5" />
+                  </Button>
+                </SheetTrigger>
+                <SheetContent side="right">
+                  <SheetHeader>
+                    <SheetTitle>Navigation</SheetTitle>
+                  </SheetHeader>
+                  <div className="flex flex-col gap-4 mt-8">
+                    {navItems.map((item) => (
+                      <Link
+                        key={item.path}
+                        to={item.path}
+                        onClick={() => setOpen(false)}
+                        className={cn(
+                          "flex items-center gap-3 text-lg font-medium transition-colors p-2 rounded-lg hover:bg-muted",
+                          location.pathname === item.path
+                            ? "text-primary bg-primary/5"
+                            : "text-muted-foreground"
+                        )}
+                      >
+                        <item.icon className="h-5 w-5" />
+                        {item.name}
+                      </Link>
+                    ))}
+                  </div>
+                </SheetContent>
+              </Sheet>
+            )}
           </div>
 
           <div className="hidden sm:block h-8 w-8 rounded-full bg-muted border border-border" />

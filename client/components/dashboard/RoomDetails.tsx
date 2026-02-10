@@ -1,28 +1,29 @@
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogHeader, 
-  DialogTitle, 
-  DialogDescription 
+import * as React from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription
 } from "@/components/ui/dialog";
-import { 
-  ResponsiveContainer, 
-  AreaChart, 
-  Area, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
-  BarChart, 
+import {
+  ResponsiveContainer,
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  BarChart,
   Bar,
   Cell
 } from "recharts";
 import { Room } from "@shared/types";
-import { 
-  Users, 
-  Calendar, 
-  Clock, 
-  ArrowUpRight, 
+import {
+  Users,
+  Calendar,
+  Clock,
+  ArrowUpRight,
   ArrowDownRight,
   UserCheck,
   UserMinus,
@@ -31,6 +32,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 
 interface RoomDetailsProps {
   room: Room | null;
@@ -39,7 +41,13 @@ interface RoomDetailsProps {
 }
 
 export function RoomDetails({ room, open, onOpenChange }: RoomDetailsProps) {
-  if (!room) return null;
+  const [mounted, setMounted] = React.useState(false);
+
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!room || !mounted) return null;
 
   const todayAttendance = room.history[room.history.length - 1];
   const yesterdayAttendance = room.history[room.history.length - 2];
