@@ -3,12 +3,20 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { CheckCircle2, Loader2, Wifi, Bluetooth, ShieldCheck } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function Attendance() {
   const [code, setCode] = useState("");
   const [rollNumber, setRollNumber] = useState("");
+  const [roomNumber, setRoomNumber] = useState("");
   const [status, setStatus] = useState<"idle" | "verifying" | "success">("idle");
   const [step, setStep] = useState(0);
 
@@ -20,7 +28,7 @@ export default function Attendance() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (code.length !== 6 || !rollNumber.trim()) return;
+    if (code.length !== 6 || !rollNumber.trim() || !roomNumber) return;
 
     setStatus("verifying");
     setStep(0);
@@ -76,6 +84,21 @@ export default function Attendance() {
                       />
                     </div>
                     <div className="space-y-2">
+                      <Label htmlFor="roomNumber">Room Number (Class)</Label>
+                      <Select onValueChange={setRoomNumber} value={roomNumber}>
+                        <SelectTrigger className="h-12">
+                          <SelectValue placeholder="Select Classroom" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="101">101 (CS-A)</SelectItem>
+                          <SelectItem value="102">102 (CS-B)</SelectItem>
+                          <SelectItem value="103">103 (IT-A)</SelectItem>
+                          <SelectItem value="104">104 (IT-B)</SelectItem>
+                          <SelectItem value="105">105 (Mech)</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
                       <Label htmlFor="code" className="block text-center">Session Code</Label>
                       <Input
                         id="code"
@@ -92,7 +115,7 @@ export default function Attendance() {
                   <Button
                     type="submit"
                     className="w-full h-12 text-lg font-semibold"
-                    disabled={code.length !== 6 || !rollNumber.trim()}
+                    disabled={code.length !== 6 || !rollNumber.trim() || !roomNumber}
                   >
                     Mark Attendance
                   </Button>
@@ -145,7 +168,7 @@ export default function Attendance() {
             <div className="space-y-2">
               <h2 className="text-2xl font-bold text-foreground">Attendance Verified!</h2>
               <p className="text-muted-foreground">
-                Your presence has been successfully recorded for Room 101.
+                Your presence has been successfully recorded for Room {roomNumber}.
               </p>
             </div>
             <Button variant="outline" onClick={() => { setStatus("idle"); setCode(""); }}>

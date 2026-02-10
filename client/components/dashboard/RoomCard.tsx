@@ -1,7 +1,8 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
-import { AlertTriangle, Users } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
+import { AlertTriangle, Users, Monitor, Wind, Lightbulb } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Room } from "@shared/types";
 
@@ -31,6 +32,10 @@ export function RoomCard({ room, onToggleResource, onClick }: RoomCardProps) {
           <Users className="h-3 w-3" />
           {room.studentsCount} / {room.totalCapacity} Students present
         </CardDescription>
+        <Progress
+          value={(room.studentsCount / room.totalCapacity) * 100}
+          className="h-1.5 mt-2"
+        />
       </CardHeader>
       <CardContent className="space-y-4" onClick={(e) => e.stopPropagation()}>
         {room.alert && (
@@ -40,19 +45,22 @@ export function RoomCard({ room, onToggleResource, onClick }: RoomCardProps) {
           </div>
         )}
         <div className="space-y-3">
-          <ResourceToggle 
-            label="Projector" 
-            isActive={room.resources.projector} 
+          <ResourceToggle
+            label="Projector"
+            icon={Monitor}
+            isActive={room.resources.projector}
             onToggle={() => onToggleResource(room.id, "projector")}
           />
-          <ResourceToggle 
-            label="Air Conditioning" 
-            isActive={room.resources.ac} 
+          <ResourceToggle
+            label="Air Conditioning"
+            icon={Wind}
+            isActive={room.resources.ac}
             onToggle={() => onToggleResource(room.id, "ac")}
           />
-          <ResourceToggle 
-            label="Smart Lighting" 
-            isActive={room.resources.light} 
+          <ResourceToggle
+            label="Smart Lighting"
+            icon={Lightbulb}
+            isActive={room.resources.light}
             onToggle={() => onToggleResource(room.id, "light")}
           />
         </div>
@@ -61,10 +69,13 @@ export function RoomCard({ room, onToggleResource, onClick }: RoomCardProps) {
   );
 }
 
-function ResourceToggle({ label, isActive, onToggle }: { label: string, isActive: boolean, onToggle: () => void }) {
+function ResourceToggle({ label, icon: Icon, isActive, onToggle }: { label: string, icon: any, isActive: boolean, onToggle: () => void }) {
   return (
-    <div className="flex items-center justify-between">
-      <span className="text-sm font-medium">{label}</span>
+    <div className="flex items-center justify-between p-2 rounded-lg bg-muted/50 transition-colors hover:bg-muted">
+      <div className="flex items-center gap-3">
+        <Icon className={cn("h-4 w-4", isActive ? "text-primary" : "text-muted-foreground")} />
+        <span className="text-sm font-medium">{label}</span>
+      </div>
       <Switch 
         checked={isActive} 
         onCheckedChange={(e) => {

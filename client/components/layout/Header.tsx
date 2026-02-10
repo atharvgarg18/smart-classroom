@@ -22,7 +22,7 @@ export function Header() {
   }, []);
 
   const navItems = [
-    { name: "Command Center", path: "/", icon: LayoutDashboard },
+    { name: "Command Center", path: "/admin", icon: LayoutDashboard },
     { name: "Attendance Portal", path: "/attendance", icon: UserCheck },
   ];
 
